@@ -1,0 +1,208 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Classified design system.
+ *
+ * Calm, pale, easy-on-the-eyes palette: a soft cool porcelain light mode and
+ * a true-black dark mode with neutral grays (no blue/slate tint). The accent color is switched by
+ * setting data-accent on <html>; each accent block below recolors --primary
+ * (and ring, which references it) across the whole site. Accents are muted,
+ * not neon. All colors MUST use oklch format.
+ *
+ * To add a new accent: add a block below and an entry in
+ * src/components/ThemeControls.tsx (ACCENTS).
+ */
+
+@theme inline {
+  --font-sans: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Manrope", ui-sans-serif, sans-serif;
+  --font-arabic: "Playpen Sans Arabic", "Sora", ui-sans-serif, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* Light mode: soft cool porcelain instead of stark white */
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.975 0.006 250);
+  --foreground: oklch(0.3 0.02 255);
+  --card: oklch(0.995 0.003 250);
+  --card-foreground: oklch(0.3 0.02 255);
+  --popover: oklch(0.995 0.003 250);
+  --popover-foreground: oklch(0.3 0.02 255);
+  --primary: oklch(0.66 0.14 18);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.945 0.008 250);
+  --secondary-foreground: oklch(0.3 0.02 255);
+  --muted: oklch(0.95 0.008 250);
+  --muted-foreground: oklch(0.55 0.015 255);
+  --accent: oklch(0.94 0.01 250);
+  --accent-foreground: oklch(0.3 0.02 255);
+  --destructive: oklch(0.6 0.17 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.905 0.012 250);
+  --input: oklch(0.905 0.012 250);
+  --ring: var(--primary);
+  --chart-1: var(--primary);
+  --chart-2: oklch(0.66 0.09 185);
+  --chart-3: oklch(0.48 0.06 230);
+  --chart-4: oklch(0.8 0.12 85);
+  --chart-5: oklch(0.72 0.12 72);
+  --sidebar: oklch(0.965 0.006 250);
+  --sidebar-foreground: oklch(0.3 0.02 255);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.94 0.01 250);
+  --sidebar-accent-foreground: oklch(0.3 0.02 255);
+  --sidebar-border: oklch(0.905 0.012 250);
+  --sidebar-ring: var(--primary);
+}
+
+/* Dark mode: true black, neutral grays (no blue/slate tint) */
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.93 0 0);
+  --card: oklch(0.125 0 0);
+  --card-foreground: oklch(0.93 0 0);
+  --popover: oklch(0.15 0 0);
+  --popover-foreground: oklch(0.93 0 0);
+  --primary: oklch(0.66 0.14 18);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.19 0 0);
+  --secondary-foreground: oklch(0.93 0 0);
+  --muted: oklch(0.17 0 0);
+  --muted-foreground: oklch(0.66 0 0);
+  --accent: oklch(0.2 0 0);
+  --accent-foreground: oklch(0.93 0 0);
+  --destructive: oklch(0.65 0.15 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.24 0 0);
+  --input: oklch(0.28 0 0);
+  --ring: var(--primary);
+  --chart-1: var(--primary);
+  --chart-2: oklch(0.68 0.1 185);
+  --chart-3: oklch(0.72 0.12 72);
+  --chart-4: oklch(0.64 0.14 300);
+  --chart-5: oklch(0.66 0.13 18);
+  --sidebar: oklch(0.125 0 0);
+  --sidebar-foreground: oklch(0.93 0 0);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.2 0 0);
+  --sidebar-accent-foreground: oklch(0.93 0 0);
+  --sidebar-border: oklch(0.24 0 0);
+  --sidebar-ring: var(--primary);
+}
+
+/*
+ * Accent themes. Declared after .dark so they win for --primary regardless
+ * of color mode (the accent is the same in light and dark). Muted, peaceful
+ * chroma throughout — nothing neon.
+ */
+[data-accent="pink"] {
+  --primary: oklch(0.66 0.14 18);
+  --primary-foreground: oklch(0.99 0 0);
+}
+[data-accent="red"] {
+  --primary: oklch(0.64 0.15 27);
+  --primary-foreground: oklch(0.99 0 0);
+}
+[data-accent="orange"] {
+  --primary: oklch(0.72 0.13 55);
+  --primary-foreground: oklch(0.22 0.03 55);
+}
+[data-accent="gold"] {
+  --primary: oklch(0.78 0.12 88);
+  --primary-foreground: oklch(0.24 0.04 88);
+}
+[data-accent="green"] {
+  --primary: oklch(0.66 0.12 155);
+  --primary-foreground: oklch(0.22 0.03 155);
+}
+[data-accent="teal"] {
+  --primary: oklch(0.7 0.1 195);
+  --primary-foreground: oklch(0.22 0.03 195);
+}
+[data-accent="blue"] {
+  --primary: oklch(0.63 0.13 255);
+  --primary-foreground: oklch(0.99 0 0);
+}
+[data-accent="violet"] {
+  --primary: oklch(0.63 0.14 300);
+  --primary-foreground: oklch(0.99 0 0);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 25%, transparent);
+  }
+  /* Interactive elements get a pointer cursor (collapsibles, cards,
+     checkboxes, menu items — Tailwind v4 dropped the default). */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  [role="checkbox"]:not(:disabled),
+  [role="menuitem"],
+  [role="option"],
+  [role="tab"],
+  [data-slot="collapsible-trigger"],
+  label,
+  summary,
+  a {
+    cursor: pointer;
+  }
+}
