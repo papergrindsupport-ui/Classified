@@ -1,3 +1,4 @@
+import { cardSettingsStore } from "@/lib/prefs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -16,6 +17,15 @@ import { Toaster } from "react-hot-toast";
 import appCss from "../styles.css?url";
 import { ThemeControls, useThemeEffect } from "@/components/ThemeControls";
 import { cn } from "@/lib/utils";
+import { ChevronDown, Dna, FlaskConical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { QuestionTimersClock } from "@/components/QuestionTimer";
 
 function NotFoundComponent() {
   return (
@@ -120,7 +130,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   // Apply the persisted theme before first paint to avoid a flash.
-  const themeBootstrap = `try{var t=JSON.parse(localStorage.getItem("bp.theme")||"null")||{};document.documentElement.classList.toggle("dark",(t.mode||"dark")!=="light");document.documentElement.dataset.accent=t.accent||"pink";}catch(e){}`;
+  const themeBootstrap = `try{var t=JSON.parse(localStorage.getItem("bp.theme")||"null")||{};document.documentElement.classList.toggle("dark",(t.mode||"dark")!=="light");document.documentElement.dataset.accent=t.accent||"pink";document.documentElement.dataset.subject=(location.pathname==="/solve-chem"||location.pathname==="/track-chem")?"chem":"bio";var c=JSON.parse(localStorage.getItem("bp.cardSettings")||"null")||{};document.documentElement.dataset.chemColor=c.chemColor===false?"off":"on";}catch(e){}`;
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -137,6 +147,14 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function SiteHeader() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => {
+    document.documentElement.dataset["subject"] =
+      pathname === "/solve-chem" || pathname === "/track-chem" ? "chem" : "bio";
+  }, [pathname]);
+  const chemColor = cardSettingsStore.useStore((s) => s.chemColor);
+  useEffect(() => {
+    document.documentElement.dataset["chemColor"] = chemColor ? "on" : "off";
+  }, [chemColor]);
   const solveActive = pathname.startsWith("/solve");
   const trackActive = pathname.startsWith("/track");
   const linkClass = (active: boolean) =>
@@ -153,12 +171,33 @@ function SiteHeader() {
           <span className="font-display text-lg font-bold tracking-tight">Classified</span>
         </Link>
         <nav className="ml-2 flex items-center gap-1">
-          <Link to="/solve" className={linkClass(solveActive)}>
-            Solve
-          </Link>
-          <Link to="/track" className={linkClass(trackActive)}>
-            Track
-          </Link>
+          {(["Solve", "Track"] as const).map((label) => (
+            <DropdownMenu key={label}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={linkClass(label === "Solve" ? solveActive : trackActive)}
+                >
+                  {label}
+                  <ChevronDown className="ml-1 size-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem asChild>
+                  <Link to={label === "Solve" ? "/solve" : "/track"}>
+                    <Dna />
+                    Biology
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to={label === "Solve" ? "/solve-chem" : "/track-chem"}>
+                    <FlaskConical />
+                    Chemistry
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ))}
         </nav>
         <div className="ml-auto">
           <ThemeControls />
@@ -174,6 +213,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <QuestionTimersClock />
       <div className="flex min-h-screen flex-col">
         <SiteHeader />
         <main className="flex-1">

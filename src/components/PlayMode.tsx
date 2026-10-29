@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Check,
   ChevronLeft,
@@ -18,17 +18,12 @@ import { BigCheckbox } from "@/components/BigCheckbox";
 import { TrackSettingsModal } from "@/components/TrackSettingsModal";
 import type { QuestionCardData } from "@/components/QuestionModal";
 import { cn, fmtPart } from "@/lib/utils";
-import { getPaperLinks } from "@/data/papers";
-import { TOPIC_BY_NAME } from "@/data/megaTopics";
 import { cardTopicsLessons } from "@/lib/cardTopics";
 import { cardSettingsStore } from "@/lib/prefs";
-import {
-  filtersStore,
-  partsStore,
-  questionState,
-  setQuestionChecked,
-} from "@/lib/state";
+import { questionState } from "@/lib/state";
+import { useSubject } from "@/lib/subjectContext";
 import { playMarkDoneReward, playSound } from "@/lib/sounds";
+import { QuestionTimer } from "./QuestionTimer";
 
 /**
  * Play mode: one large question card at a time with prev/next chevrons and a
@@ -45,6 +40,22 @@ export function PlayMode({
   const [navOpen, setNavOpen] = useState(false);
   const safeIndex = Math.min(index, Math.max(0, cards.length - 1));
   const card = cards[safeIndex];
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (document.querySelector('[role="dialog"]')) return;
+      if (!cards.length) return;
+      e.preventDefault();
+      playSound("click");
+      const d = e.key === "ArrowLeft" ? -1 : 1;
+      setIndex((i) => (Math.min(i, cards.length - 1) + d + cards.length) % cards.length);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [cards.length]);
   if (!card) return null;
 
   const go = (delta: number) => {
@@ -139,26 +150,20 @@ export function PlayMode({
   );
 }
 
-function PlayCard({
-  card,
-  checkedSet,
-}: {
-  card: QuestionCardData;
-  checkedSet: Set<string>;
-}) {
+function PlayCard({ card, checkedSet }: { card: QuestionCardData; checkedSet: Set<string> }) {
+  const S = useSubject();
+  const { filtersStore, setQuestionChecked, TOPIC_BY_NAME, getPaperLinks } = S;
   const filters = filtersStore.useStore((s) => s);
   const hideUnmatched = cardSettingsStore.useStore((s) => s.hideUnmatched);
   const [showInfo, setShowInfo] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const { paper, question } = card;
-  const links = getPaperLinks("biology", paper.year, paper.session, paper.variant);
+  const links = getPaperLinks(paper.year, paper.session, paper.variant);
   const state = questionState([...checkedSet], paper.key, question, card.matchedParts);
-  const { topics, lessons, qLessonSet } = cardTopicsLessons(card, filters, hideUnmatched);
+  const { topics, lessons, qLessonSet } = cardTopicsLessons(card, filters, hideUnmatched, S.topics);
 
-  const keys = card.matchedParts.map(
-    (p) => `${paper.key}|${question.q}|${p}`,
-  );
+  const keys = card.matchedParts.map((p) => `${paper.key}|${question.q}|${p}`);
   const doneCount = keys.filter((k) => checkedSet.has(k)).length;
   const allDone = doneCount === keys.length;
   const someDone = doneCount > 0 && !allDone;
@@ -241,9 +246,7 @@ function PlayCard({
                     key={t}
                     className={cn(
                       "rounded-full px-3 py-1 text-sm",
-                      isSelected
-                        ? "bg-primary font-medium text-primary-foreground"
-                        : "bg-muted",
+                      isSelected ? "bg-primary font-medium text-primary-foreground" : "bg-muted",
                     )}
                   >
                     {t}
@@ -262,7 +265,7 @@ function PlayCard({
                 return (
                   <Link
                     key={l}
-                    to="/solve"
+                    to={S.solvePath}
                     search={{ lesson: l }}
                     target="_blank"
                     rel="noreferrer"
@@ -310,6 +313,7 @@ function PlayCard({
         )}
       </div>
 
+      <QuestionTimer card={card} />
       <div className="mt-4 rounded-xl border">
         <div className="flex items-center gap-3 px-4 py-3.5">
           <BigCheckbox
@@ -317,7 +321,11 @@ function PlayCard({
             onClick={toggleDone}
             label={`Mark question ${question.q} ${state === "all" ? "undone" : "done"}`}
           />
-          <button type="button" className="flex-1 text-left text-base font-medium" onClick={toggleDone}>
+          <button
+            type="button"
+            className="flex-1 text-left text-base font-medium"
+            onClick={toggleDone}
+          >
             {state === "all"
               ? card.allMatched
                 ? "Done — all parts checked"

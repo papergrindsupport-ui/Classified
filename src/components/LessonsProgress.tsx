@@ -3,24 +3,17 @@ import { ChevronDown, ExternalLink, Settings2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { TrackSettingsModal } from "@/components/TrackSettingsModal";
 import { cn } from "@/lib/utils";
 import { playRewardOnce } from "@/lib/sounds";
-import {
-  LESSON_GROUPS,
-  lessonDoneStore,
-  trackSettingsStore,
-  trackUiStore,
-  type LessonRow,
-} from "@/lib/state";
+import { trackSettingsStore, type LessonRow } from "@/lib/state";
+import { useSubject } from "@/lib/subjectContext";
+import { TrackerPdfButton } from "./TrackerPdfButton";
 
 export function LessonsProgress() {
+  const { LESSON_GROUPS, lessonDoneStore, trackUiStore, solvePath } = useSubject();
   const ui = trackUiStore.useStore((s) => s);
   const showParts = trackSettingsStore.useStore((s) => s.showParts);
   const counts = lessonDoneStore.useStore((s) => s);
@@ -37,13 +30,9 @@ export function LessonsProgress() {
 
   const valueOf = (row: LessonRow) =>
     (showParts ? counts.done[row.key] : counts.doneQ[row.key]) ?? 0;
-  const totalOf = (row: LessonRow) =>
-    showParts ? row.totalParts : row.totalQuestions;
+  const totalOf = (row: LessonRow) => (showParts ? row.totalParts : row.totalQuestions);
 
-  const allTopics = useMemo(
-    () => LESSON_GROUPS.flatMap((g) => g.topics),
-    [],
-  );
+  const allTopics = useMemo(() => LESSON_GROUPS.flatMap((g) => g.topics), [LESSON_GROUPS]);
   const topicsTotal = allTopics.length;
   const topicComplete = (rows: LessonRow[]) =>
     rows.length > 0 &&
@@ -59,17 +48,17 @@ export function LessonsProgress() {
   const pct = sumTotal > 0 ? Math.round((sumDone / sumTotal) * 100) : 0;
 
   const topicPct = (rows: LessonRow[]) => {
-    const done = rows.reduce((a, r) => a + (totalOf(r) > 0 ? Math.min(valueOf(r), totalOf(r)) : 0), 0);
+    const done = rows.reduce(
+      (a, r) => a + (totalOf(r) > 0 ? Math.min(valueOf(r), totalOf(r)) : 0),
+      0,
+    );
     const total = rows.reduce((a, r) => a + totalOf(r), 0);
     return total > 0 ? Math.round((done / total) * 100) : 0;
   };
 
   return (
     <section>
-      <Collapsible
-        open={ui.lessonsOpen}
-        onOpenChange={(v) => trackUiStore.set({ lessonsOpen: v })}
-      >
+      <Collapsible open={ui.lessonsOpen} onOpenChange={(v) => trackUiStore.set({ lessonsOpen: v })}>
         <div className="rounded-2xl border bg-card">
           <div className="flex items-center justify-between gap-3 px-5 py-4">
             <CollapsibleTrigger asChild>
@@ -95,6 +84,7 @@ export function LessonsProgress() {
                 </div>
               </button>
             </CollapsibleTrigger>
+            <TrackerPdfButton section="lessons" />
             <Button
               variant="ghost"
               size="icon"
@@ -113,8 +103,8 @@ export function LessonsProgress() {
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <span className="font-display text-2xl font-bold">{pct}%</span>
                   <span className="text-sm text-muted-foreground">
-                    {topicsCompleted}/{topicsTotal} topics completed ·{" "}
-                    {lessonsCompleted}/{lessonsTotal} lessons completed
+                    {topicsCompleted}/{topicsTotal} topics completed · {lessonsCompleted}/
+                    {lessonsTotal} lessons completed
                   </span>
                 </div>
                 <div className="mt-2 h-3 overflow-hidden rounded-full bg-muted">
@@ -160,57 +150,55 @@ export function LessonsProgress() {
                           const doneLessons = t.rows.filter(
                             (r) => totalOf(r) > 0 && valueOf(r) >= totalOf(r),
                           ).length;
-                          const topicQuestions = t.rows.reduce(
-                            (a, r) => a + r.totalQuestions,
-                            0,
-                          );
+                          const topicQuestions = t.rows.reduce((a, r) => a + r.totalQuestions, 0);
                           return (
                             <div key={t.topic} className="rounded-xl border">
                               <div className="flex items-center gap-1 pr-2">
-                              <button
-                                type="button"
-                                aria-expanded={isOpen}
-                                onClick={() => toggleKey(topicKey)}
-                                className="flex flex-1 items-center gap-3 px-3 py-2.5 text-left"
-                              >
-                                <ChevronDown
-                                  className={cn(
-                                    "size-3.5 shrink-0 text-muted-foreground transition-transform",
-                                    isOpen && "rotate-180",
-                                  )}
-                                />
-                                <span
-                                  className={cn(
-                                    "flex-1 truncate text-sm font-semibold",
-                                    complete && "text-primary",
-                                  )}
+                                <button
+                                  type="button"
+                                  aria-expanded={isOpen}
+                                  onClick={() => toggleKey(topicKey)}
+                                  className="flex flex-1 items-center gap-3 px-3 py-2.5 text-left"
                                 >
-                                  {t.topic}
-                                  <span className="text-muted-foreground">
-                                    {" "}({topicQuestions})
-                                  </span>
-                                </span>
-                                <div className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-muted sm:w-32">
-                                  <div
-                                    className="h-full rounded-full bg-primary transition-all"
-                                    style={{ width: `${topicPct(t.rows)}%` }}
+                                  <ChevronDown
+                                    className={cn(
+                                      "size-3.5 shrink-0 text-muted-foreground transition-transform",
+                                      isOpen && "rotate-180",
+                                    )}
                                   />
-                                </div>
-                                <span className="w-10 shrink-0 text-right text-[11px] text-muted-foreground">
-                                  {doneLessons}/{t.rows.length}
-                                </span>
-                              </button>
-                              <Link
-                                to="/solve"
-                                search={{ topic: t.topic }}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
-                                aria-label={`Solve questions for ${t.topic}`}
-                                title={`Solve questions for ${t.topic}`}
-                              >
-                                <ExternalLink className="size-3.5" />
-                              </Link>
+                                  <span
+                                    className={cn(
+                                      "flex-1 truncate text-sm font-semibold",
+                                      complete && "text-primary",
+                                    )}
+                                  >
+                                    {t.topic}
+                                    <span className="text-muted-foreground">
+                                      {" "}
+                                      ({topicQuestions})
+                                    </span>
+                                  </span>
+                                  <div className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-muted sm:w-32">
+                                    <div
+                                      className="h-full rounded-full bg-primary transition-all"
+                                      style={{ width: `${topicPct(t.rows)}%` }}
+                                    />
+                                  </div>
+                                  <span className="w-10 shrink-0 text-right text-[11px] text-muted-foreground">
+                                    {doneLessons}/{t.rows.length}
+                                  </span>
+                                </button>
+                                <Link
+                                  to={solvePath}
+                                  search={{ topic: t.topic }}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                                  aria-label={`Solve questions for ${t.topic}`}
+                                  title={`Solve questions for ${t.topic}`}
+                                >
+                                  <ExternalLink className="size-3.5" />
+                                </Link>
                               </div>
                               {isOpen && (
                                 <div className="divide-y divide-border/60 border-t">
@@ -251,6 +239,7 @@ function LessonRowInput({
   showParts: boolean;
   counts: { done: Record<string, number>; doneQ: Record<string, number> };
 }) {
+  const { lessonDoneStore, solvePath } = useSubject();
   const total = showParts ? row.totalParts : row.totalQuestions;
   const value = Math.min((showParts ? counts.done[row.key] : counts.doneQ[row.key]) ?? 0, total);
   const complete = total > 0 && value >= total;
@@ -270,7 +259,7 @@ function LessonRowInput({
         {row.lesson}
       </span>
       <Link
-        to="/solve"
+        to={solvePath}
         search={{ lesson: row.lesson }}
         target="_blank"
         rel="noreferrer"

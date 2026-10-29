@@ -6,18 +6,12 @@ import { BigCheckbox } from "@/components/BigCheckbox";
 import { TrackSettingsModal } from "@/components/TrackSettingsModal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getPaperLinks } from "@/data/papers";
-import { TOPIC_BY_NAME } from "@/data/megaTopics";
 import { fmtPart } from "@/lib/utils";
 import { cardSettingsStore } from "@/lib/prefs";
 import type { ClQuestion, PaperInfo } from "@/data/classification";
-import {
-  filtersStore,
-  partsStore,
-  questionState,
-  setPartChecked,
-  setQuestionChecked,
-} from "@/lib/state";
+import { questionState } from "@/lib/state";
+import { useSubject } from "@/lib/subjectContext";
+import { QuestionTimer } from "./QuestionTimer";
 
 export type QuestionCardData = {
   paper: PaperInfo;
@@ -36,6 +30,15 @@ export function QuestionModal({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const {
+    filtersStore,
+    partsStore,
+    setPartChecked,
+    setQuestionChecked,
+    TOPIC_BY_NAME,
+    getPaperLinks,
+    solvePath,
+  } = useSubject();
   const checked = partsStore.useStore((s) => s.checked);
   const filters = filtersStore.useStore((s) => s);
   const [expanded, setExpanded] = useState(false);
@@ -45,7 +48,7 @@ export function QuestionModal({
 
   if (!card) return null;
   const { paper, question } = card;
-  const links = getPaperLinks("biology", paper.year, paper.session, paper.variant);
+  const links = getPaperLinks(paper.year, paper.session, paper.variant);
   // "Done" means every part matching the current lesson filter is checked —
   // parts outside the filter don't count.
   const state = questionState(checked, paper.key, question, card.matchedParts);
@@ -136,9 +139,7 @@ export function QuestionModal({
                       key={t}
                       className={cn(
                         "rounded-full px-2.5 py-1 text-xs",
-                        isSelected
-                          ? "bg-primary font-medium text-primary-foreground"
-                          : "bg-muted",
+                        isSelected ? "bg-primary font-medium text-primary-foreground" : "bg-muted",
                       )}
                     >
                       {t}
@@ -162,7 +163,7 @@ export function QuestionModal({
                   return (
                     <Link
                       key={l}
-                      to="/solve"
+                      to={solvePath}
                       search={{ lesson: l }}
                       target="_blank"
                       rel="noreferrer"
@@ -199,7 +200,11 @@ export function QuestionModal({
               </Button>
             )}
             {links.ms && (
-              <Button asChild variant="outline" className="h-12 gap-2 rounded-xl px-5 text-base font-semibold">
+              <Button
+                asChild
+                variant="outline"
+                className="h-12 gap-2 rounded-xl px-5 text-base font-semibold"
+              >
                 <a href={links.ms} target="_blank" rel="noreferrer">
                   <FileQuestion className="size-4" />
                   MS
@@ -208,6 +213,7 @@ export function QuestionModal({
             )}
           </div>
 
+          <QuestionTimer card={card} />
           <div className="rounded-xl border">
             <div className="flex items-center gap-3 px-4 py-3">
               <BigCheckbox
@@ -237,7 +243,9 @@ export function QuestionModal({
                 aria-expanded={expanded}
               >
                 {question.parts.length} parts
-                <ChevronDown className={cn("size-3.5 transition-transform", expanded && "rotate-180")} />
+                <ChevronDown
+                  className={cn("size-3.5 transition-transform", expanded && "rotate-180")}
+                />
               </button>
             </div>
             {expanded && (
@@ -245,8 +253,7 @@ export function QuestionModal({
                 {question.parts.map((part) => {
                   const on = checked.includes(`${paper.key}|${question.q}|${part.p}`);
                   const isMatched = matched.has(part.p);
-                  const togglePart = () =>
-                    setPartChecked(paper.key, question, part, !on);
+                  const togglePart = () => setPartChecked(paper.key, question, part, !on);
                   return (
                     <div
                       key={part.p}

@@ -1,5 +1,7 @@
-export type SubjectId = "biology";
+export type SubjectId = "biology" | "chemistry";
 export type SessionId = "feb" | "june" | "oct";
+
+const YEARS = Array.from({ length: 2026 - 2016 + 1 }, (_, i) => 2016 + i);
 
 export const SUBJECTS: {
   id: SubjectId;
@@ -8,13 +10,8 @@ export const SUBJECTS: {
   code: string;
   years: number[];
 }[] = [
-  {
-    id: "biology",
-    name: "Biology",
-    shortcut: "Bio",
-    code: "0610",
-    years: Array.from({ length: 2026 - 2016 + 1 }, (_, i) => 2016 + i),
-  },
+  { id: "biology", name: "Biology", shortcut: "Bio", code: "0610", years: YEARS },
+  { id: "chemistry", name: "Chemistry", shortcut: "Chem", code: "0620", years: YEARS },
 ];
 
 export const SESSIONS: {
@@ -40,17 +37,18 @@ export const SESSION_SHORT: Record<SessionId, string> = {
 };
 
 export function getSubjectByShortcut(shortcut: string) {
-  return SUBJECTS.find(
-    (s) => s.shortcut.toLowerCase() === shortcut.toLowerCase(),
-  );
+  return SUBJECTS.find((s) => s.shortcut.toLowerCase() === shortcut.toLowerCase());
 }
 
 export function getSessionById(id: SessionId) {
   return SESSIONS.find((s) => s.id === id)!;
 }
 
+// Years without a Feb/March paper. Chemistry 2016 F/M 42 is classified, so
+// it is kept.
 const NO_FEB: Record<SubjectId, number[]> = {
   biology: [2016],
+  chemistry: [],
 };
 
 export function getSessionsFor(subject: SubjectId, year: number): SessionId[] {
@@ -81,22 +79,40 @@ const SESSION_CODE: Record<SessionId, string> = {
   oct: "w",
 };
 
+const BEH = "https://bestexamhelp.com/exam/cambridge-igcse";
+
 const OVERRIDES: Record<string, PaperLink> = {
   "biology-2026-feb-V2": {
-    qp: "https://bestexamhelp.com/exam/cambridge-igcse/biology-0610/2026/0610_m26_qp_42.pdf",
-    ms: "https://bestexamhelp.com/exam/cambridge-igcse/biology-0610/2026/0610_m26_ms_42.pdf",
+    qp: `${BEH}/biology-0610/2026/0610_m26_qp_42.pdf`,
+    ms: `${BEH}/biology-0610/2026/0610_m26_ms_42.pdf`,
   },
   "biology-2026-june-V1": {
-    qp: "https://bestexamhelp.com/exam/cambridge-igcse/biology-0610/2026/0610_s26_qp_41.pdf",
-    ms: "https://bestexamhelp.com/exam/cambridge-igcse/biology-0610/2026/0610_s26_ms_41.pdf",
+    qp: `${BEH}/biology-0610/2026/0610_s26_qp_41.pdf`,
+    ms: `${BEH}/biology-0610/2026/0610_s26_ms_41.pdf`,
   },
   "biology-2026-june-V2": {
-    qp: "https://bestexamhelp.com/exam/cambridge-igcse/biology-0610/2026/0610_s26_qp_42.pdf",
-    ms: "https://bestexamhelp.com/exam/cambridge-igcse/biology-0610/2026/0610_s26_ms_42.pdf",
+    qp: `${BEH}/biology-0610/2026/0610_s26_qp_42.pdf`,
+    ms: `${BEH}/biology-0610/2026/0610_s26_ms_42.pdf`,
   },
   "biology-2026-june-V3": {
-    qp: "https://bestexamhelp.com/exam/cambridge-igcse/biology-0610/2026/0610_s26_qp_43.pdf",
-    ms: "https://bestexamhelp.com/exam/cambridge-igcse/biology-0610/2026/0610_s26_ms_43.pdf",
+    qp: `${BEH}/biology-0610/2026/0610_s26_qp_43.pdf`,
+    ms: `${BEH}/biology-0610/2026/0610_s26_ms_43.pdf`,
+  },
+  "chemistry-2026-feb-V2": {
+    qp: `${BEH}/chemistry-0620/2026/0620_m26_qp_42.pdf`,
+    ms: `${BEH}/chemistry-0620/2026/0620_m26_ms_42.pdf`,
+  },
+  "chemistry-2026-june-V1": {
+    qp: `${BEH}/chemistry-0620/2026/0620_s26_qp_41.pdf`,
+    ms: `${BEH}/chemistry-0620/2026/0620_s26_ms_41.pdf`,
+  },
+  "chemistry-2026-june-V2": {
+    qp: `${BEH}/chemistry-0620/2026/0620_s26_qp_42.pdf`,
+    ms: `${BEH}/chemistry-0620/2026/0620_s26_ms_42.pdf`,
+  },
+  "chemistry-2026-june-V3": {
+    qp: `${BEH}/chemistry-0620/2026/0620_s26_qp_43.pdf`,
+    ms: `${BEH}/chemistry-0620/2026/0620_s26_ms_43.pdf`,
   },
 };
 
@@ -107,10 +123,11 @@ function defaultUrl(
   variant: string,
   kind: "qp" | "ms",
 ): string {
+  const code = getSubject(subject).code;
   const yy = String(year).slice(-2);
   const v = variant.replace(/^V/i, "");
 
-  return `https://dynamicpapers.com/wp-content/uploads/2015/09/0610_${SESSION_CODE[session]}${yy}_${kind}_4${v}.pdf`;
+  return `https://dynamicpapers.com/wp-content/uploads/2015/09/${code}_${SESSION_CODE[session]}${yy}_${kind}_4${v}.pdf`;
 }
 
 export function getPaperLinks(

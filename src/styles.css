@@ -72,7 +72,8 @@
   --card-foreground: oklch(0.3 0.02 255);
   --popover: oklch(0.995 0.003 250);
   --popover-foreground: oklch(0.3 0.02 255);
-  --primary: oklch(0.66 0.14 18);
+  --base-primary: oklch(0.66 0.14 18);
+  --primary: var(--base-primary);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.945 0.008 250);
   --secondary-foreground: oklch(0.3 0.02 255);
@@ -108,7 +109,8 @@
   --card-foreground: oklch(0.93 0 0);
   --popover: oklch(0.15 0 0);
   --popover-foreground: oklch(0.93 0 0);
-  --primary: oklch(0.66 0.14 18);
+  --base-primary: oklch(0.66 0.14 18);
+  --primary: var(--base-primary);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.19 0 0);
   --secondary-foreground: oklch(0.93 0 0);
@@ -142,36 +144,47 @@
  * chroma throughout — nothing neon.
  */
 [data-accent="pink"] {
-  --primary: oklch(0.66 0.14 18);
+  --base-primary: oklch(0.66 0.14 18);
   --primary-foreground: oklch(0.99 0 0);
 }
 [data-accent="red"] {
-  --primary: oklch(0.64 0.15 27);
+  --base-primary: oklch(0.64 0.15 27);
   --primary-foreground: oklch(0.99 0 0);
 }
 [data-accent="orange"] {
-  --primary: oklch(0.72 0.13 55);
+  --base-primary: oklch(0.72 0.13 55);
   --primary-foreground: oklch(0.22 0.03 55);
 }
 [data-accent="gold"] {
-  --primary: oklch(0.78 0.12 88);
+  --base-primary: oklch(0.78 0.12 88);
   --primary-foreground: oklch(0.24 0.04 88);
 }
 [data-accent="green"] {
-  --primary: oklch(0.66 0.12 155);
+  --base-primary: oklch(0.66 0.12 155);
   --primary-foreground: oklch(0.22 0.03 155);
 }
 [data-accent="teal"] {
-  --primary: oklch(0.7 0.1 195);
+  --base-primary: oklch(0.7 0.1 195);
   --primary-foreground: oklch(0.22 0.03 195);
 }
 [data-accent="blue"] {
-  --primary: oklch(0.63 0.13 255);
+  --base-primary: oklch(0.63 0.13 255);
   --primary-foreground: oklch(0.99 0 0);
 }
 [data-accent="violet"] {
-  --primary: oklch(0.63 0.14 300);
+  --base-primary: oklch(0.63 0.14 300);
   --primary-foreground: oklch(0.99 0 0);
+}
+
+/*
+ * Subject colors. Biology uses the chosen accent as-is; Chemistry always uses
+ * a hue rotated from it, so the two subjects never share a primary color.
+ * data-subject="chem" is set on <html> on Chemistry pages; .subject-chem
+ * applies the same color to a single element (e.g. the homepage button).
+ */
+html[data-subject="chem"]:not([data-chem-color="off"]),
+html:not([data-chem-color="off"]) .subject-chem {
+  --primary: oklch(from var(--base-primary) l c calc(h + 150));
 }
 
 @layer base {

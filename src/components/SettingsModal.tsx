@@ -1,19 +1,12 @@
 import { useState } from "react";
 import { Check, ChevronDown, Settings } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { SESSIONS, type SessionId } from "@/data/papers";
-import { ALL_YEARS, tableStore } from "@/lib/state";
+import { ALL_YEARS } from "@/lib/state";
+import { useSubject } from "@/lib/subjectContext";
 
 export function SettingsModal({
   open,
@@ -22,6 +15,7 @@ export function SettingsModal({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const { tableStore, name } = useSubject();
   const table = tableStore.useStore((s) => s);
   const [sessionsOpen, setSessionsOpen] = useState(true);
   const [yearsOpen, setYearsOpen] = useState(true);
@@ -36,18 +30,14 @@ export function SettingsModal({
   const toggleVariant = (id: SessionId, variant: string) => {
     const variants = { ...tableStore.get().variants };
     const list = variants[id] ?? [];
-    variants[id] = list.includes(variant)
-      ? list.filter((v) => v !== variant)
-      : [...list, variant];
+    variants[id] = list.includes(variant) ? list.filter((v) => v !== variant) : [...list, variant];
     tableStore.set({ variants });
   };
 
   const toggleYear = (year: number) => {
     const cur = tableStore.get().years;
     tableStore.set({
-      years: cur.includes(year)
-        ? cur.filter((y) => y !== year)
-        : [...cur, year],
+      years: cur.includes(year) ? cur.filter((y) => y !== year) : [...cur, year],
     });
   };
 
@@ -56,9 +46,7 @@ export function SettingsModal({
       <DialogContent className="max-h-[85vh] max-w-lg gap-0 overflow-y-auto p-0">
         <div className="flex items-center gap-3 border-b px-6 py-4">
           <Settings className="size-5 text-primary" />
-          <DialogTitle className="text-lg font-bold">
-            Planner settings — Biology
-          </DialogTitle>
+          <DialogTitle className="text-lg font-bold">Planner settings — {name}</DialogTitle>
         </div>
 
         <div className="space-y-6 px-6 py-5">
@@ -100,7 +88,9 @@ export function SettingsModal({
                             {session.variants.map((variant) => (
                               <Chip
                                 key={variant}
-                                active={sessionOn && (table.variants[session.id] ?? []).includes(variant)}
+                                active={
+                                  sessionOn && (table.variants[session.id] ?? []).includes(variant)
+                                }
                                 onClick={() => toggleVariant(session.id, variant)}
                               >
                                 {variant}

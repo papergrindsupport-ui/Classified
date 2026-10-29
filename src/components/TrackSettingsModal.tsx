@@ -1,13 +1,10 @@
 import { Check } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { trackSettingsStore } from "@/lib/state";
 import { cardSettingsStore, feedbackStore } from "@/lib/prefs";
 import { playSound } from "@/lib/sounds";
+import { useSubject } from "@/lib/subjectContext";
 
 const OPTIONS = [
   {
@@ -31,17 +28,18 @@ export function TrackSettingsModal({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const { name } = useSubject();
   const showParts = trackSettingsStore.useStore((s) => s.showParts);
   const hideUnmatched = cardSettingsStore.useStore((s) => s.hideUnmatched);
+  const chemColor = cardSettingsStore.useStore((s) => s.chemColor);
+  const hideTimer = cardSettingsStore.useStore((s) => s.hideTimer);
   const sounds = feedbackStore.useStore((s) => s.sounds);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] max-w-lg gap-0 overflow-y-auto p-0">
         <div className="border-b px-6 py-4">
-          <DialogTitle className="text-lg font-bold">
-            Settings — Biology
-          </DialogTitle>
+          <DialogTitle className="text-lg font-bold">Settings — {name}</DialogTitle>
           <p className="mt-1 text-sm text-muted-foreground">
             Tracking, question cards and feedback.
           </p>
@@ -62,9 +60,7 @@ export function TrackSettingsModal({
                     onClick={() => trackSettingsStore.set({ showParts: opt.value })}
                     className={cn(
                       "flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors",
-                      active
-                        ? "border-primary bg-primary/5"
-                        : "hover:bg-muted/50",
+                      active ? "border-primary bg-primary/5" : "hover:bg-muted/50",
                     )}
                   >
                     <span
@@ -97,6 +93,20 @@ export function TrackSettingsModal({
               on={hideUnmatched}
               onToggle={() => cardSettingsStore.set({ hideUnmatched: !hideUnmatched })}
             />
+            <div className="mt-3 space-y-3">
+              <ToggleRow
+                title="Hide timer"
+                description="Never show the timer controls on questions."
+                on={hideTimer}
+                onToggle={() => cardSettingsStore.set({ hideTimer: !hideTimer })}
+              />
+              <ToggleRow
+                title="Change color for chemistry pages"
+                description="Give Chemistry pages their own color, worked out from your theme color."
+                on={chemColor}
+                onToggle={() => cardSettingsStore.set({ chemColor: !chemColor })}
+              />
+            </div>
           </section>
 
           <section>
@@ -150,9 +160,7 @@ function ToggleRow({
       </span>
       <span>
         <span className="block text-sm font-semibold">{title}</span>
-        <span className="mt-1 block text-xs text-muted-foreground">
-          {description}
-        </span>
+        <span className="mt-1 block text-xs text-muted-foreground">{description}</span>
       </span>
     </button>
   );

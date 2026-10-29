@@ -1,3 +1,4 @@
+// Topic / lesson structure for IGCSE Chemistry (0620).
 export type MegaTopic = { name: string; subtopics: string[] };
 export type TopicLessons = { name: string; lessons: string[] };
 
@@ -185,6 +186,14 @@ export const CHEMISTRY_TOPICS: TopicLessons[] = [
       "Addition & Condensation Polymers",
       "Plastics & their Disposal",
       "Proteins",
+      // Extra lesson names used by the classified questions
+      "Hydrocarbons",
+      "Structural Formulae",
+      "Isomers",
+      "Isomerism",
+      "Complete Combustion",
+      "Cracking",
+      "Substitution Reactions",
     ],
   },
   {
@@ -199,12 +208,13 @@ export const CHEMISTRY_TOPICS: TopicLessons[] = [
       "Identification of Anions",
       "Identification of Cations",
       "Identification of Gases",
+      "Identification of Water",
     ],
   },
 ];
 
 const TOPIC_NAME_BY_LABEL = new Map(
-  CHEMISTRY_TOPICS.map((topic) => [topic.name.replace(/^\\d+\\s+/, ""), topic.name]),
+  CHEMISTRY_TOPICS.map((topic) => [topic.name.replace(/^\d+\s+/, ""), topic.name]),
 );
 
 // Each topic appears under exactly one megatopic in the UI.

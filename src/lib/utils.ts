@@ -10,5 +10,5 @@ export function cn(...inputs: ClassValue[]) {
  * displayed exactly as stored — no brackets.
  */
 export function fmtPart(p: string) {
-  return p;
+  return p || "whole";
 }

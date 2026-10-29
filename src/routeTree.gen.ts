@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SolveRouteImport } from './routes/solve'
+import { Route as SolveChemRouteImport } from './routes/solve-chem'
 import { Route as TrackRouteImport } from './routes/track'
+import { Route as TrackChemRouteImport } from './routes/track-chem'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,40 +25,58 @@ const SolveRoute = SolveRouteImport.update({
   path: '/solve',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SolveChemRoute = SolveChemRouteImport.update({
+  id: '/solve-chem',
+  path: '/solve-chem',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrackRoute = TrackRouteImport.update({
   id: '/track',
   path: '/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackChemRoute = TrackChemRouteImport.update({
+  id: '/track-chem',
+  path: '/track-chem',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/solve': typeof SolveRoute
+  '/solve-chem': typeof SolveChemRoute
   '/track': typeof TrackRoute
+  '/track-chem': typeof TrackChemRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/solve': typeof SolveRoute
+  '/solve-chem': typeof SolveChemRoute
   '/track': typeof TrackRoute
+  '/track-chem': typeof TrackChemRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/solve': typeof SolveRoute
+  '/solve-chem': typeof SolveChemRoute
   '/track': typeof TrackRoute
+  '/track-chem': typeof TrackChemRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/solve' | '/track'
+  fullPaths: '/' | '/solve' | '/solve-chem' | '/track' | '/track-chem'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/solve' | '/track'
-  id: '__root__' | '/' | '/solve' | '/track'
+  to: '/' | '/solve' | '/solve-chem' | '/track' | '/track-chem'
+  id: '__root__' | '/' | '/solve' | '/solve-chem' | '/track' | '/track-chem'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SolveRoute: typeof SolveRoute
+  SolveChemRoute: typeof SolveChemRoute
   TrackRoute: typeof TrackRoute
+  TrackChemRoute: typeof TrackChemRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,11 +95,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SolveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/solve-chem': {
+      id: '/solve-chem'
+      path: '/solve-chem'
+      fullPath: '/solve-chem'
+      preLoaderRoute: typeof SolveChemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/track': {
       id: '/track'
       path: '/track'
       fullPath: '/track'
       preLoaderRoute: typeof TrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track-chem': {
+      id: '/track-chem'
+      path: '/track-chem'
+      fullPath: '/track-chem'
+      preLoaderRoute: typeof TrackChemRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -88,7 +122,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SolveRoute: SolveRoute,
+  SolveChemRoute: SolveChemRoute,
   TrackRoute: TrackRoute,
+  TrackChemRoute: TrackChemRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

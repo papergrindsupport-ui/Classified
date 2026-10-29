@@ -4,6 +4,10 @@ import { createLocalStore, createSessionStore } from "./store";
 export const cardSettingsStore = createLocalStore("bp.cardSettings", {
   // Enabled by default: only topics/lessons matching the current filter show.
   hideUnmatched: true,
+  // Chemistry pages use a hue-shifted accent unless turned off.
+  chemColor: true,
+  // When on, question timers are never shown.
+  hideTimer: false,
 });
 
 /** Feedback preferences. */

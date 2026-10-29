@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { MEGA_GROUPS, TOPIC_BY_NAME } from "@/data/megaTopics";
 import { SESSIONS, SESSION_SHORT, type SessionId } from "@/data/papers";
-import { filtersStore, ALL_LESSONS, ALL_SESSIONS, ALL_YEARS, resetFilters } from "@/lib/state";
+import { ALL_SESSIONS, ALL_YEARS } from "@/lib/state";
+import { useSubject } from "@/lib/subjectContext";
 
 export function TopicChecklist({
   open: controlledOpen,
@@ -15,6 +15,7 @@ export function TopicChecklist({
   open?: boolean;
   onOpenChange?: (v: boolean) => void;
 } = {}) {
+  const { filtersStore, ALL_LESSONS, megaGroups: MEGA_GROUPS, TOPIC_BY_NAME } = useSubject();
   const lessons = filtersStore.useStore((s) => s.lessons);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
@@ -157,6 +158,7 @@ export function TopicChecklist({
 }
 
 export function YearPicker() {
+  const { filtersStore } = useSubject();
   const years = filtersStore.useStore((s) => s.years);
   const sessions = filtersStore.useStore((s) => s.sessions);
   const variants = filtersStore.useStore((s) => s.variants);
@@ -315,6 +317,7 @@ export function YearPicker() {
 }
 
 export function ResetFiltersButton() {
+  const { resetFilters } = useSubject();
   return (
     <Button
       variant="ghost"

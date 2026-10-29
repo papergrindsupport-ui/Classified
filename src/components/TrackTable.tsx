@@ -5,19 +5,23 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { SettingsModal } from "@/components/SettingsModal";
 import { deliverFile } from "@/lib/download";
 import { cn } from "@/lib/utils";
-import { PAPER_BY_KEY, TOTAL_PAPERS } from "@/data/classification";
 import { SESSIONS, SESSION_SHORT, type SessionId } from "@/data/papers";
-import {
-  ALL_YEARS,
-  papersStore,
-  partsStore,
-  lessonDoneStore,
-  tableStore,
-  trackUiStore,
-} from "@/lib/state";
+import { ALL_YEARS } from "@/lib/state";
+import { useSubject } from "@/lib/subjectContext";
 import { playRewardOnce } from "@/lib/sounds";
+import { TrackerPdfButton } from "./TrackerPdfButton";
 
 export function TrackTable() {
+  const S = useSubject();
+  const {
+    papersStore,
+    partsStore,
+    lessonDoneStore,
+    tableStore,
+    trackUiStore,
+    PAPER_BY_KEY,
+    TOTAL_PAPERS,
+  } = S;
   const done = papersStore.useStore((s) => s.done);
   const table = tableStore.useStore((s) => s);
   const ui = trackUiStore.useStore((s) => s);
@@ -41,7 +45,7 @@ export function TrackTable() {
   const download = () => {
     const payload = {
       app: "classified",
-      subject: "biology-0610",
+      subject: `${S.id}-${S.code}`,
       exportedAt: new Date().toISOString(),
       papersDone: papersStore.get().done,
       partsChecked: partsStore.get().checked,
@@ -49,7 +53,7 @@ export function TrackTable() {
     };
     deliverFile(
       new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }),
-      "classified-progress.json",
+      S.id === "biology" ? "classified-progress.json" : `classified-${S.id}-progress.json`,
     );
   };
 
@@ -87,15 +91,8 @@ export function TrackTable() {
               </button>
             </CollapsibleTrigger>
             <div className="flex items-center gap-1.5">
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Download progress backup"
-                title="Download progress backup"
-                onClick={download}
-              >
-                <Download className="size-4.5" />
-              </Button>
+              <TrackerPdfButton section="planner" />
+
               <Button
                 variant="ghost"
                 size="icon"
